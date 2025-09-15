@@ -1,0 +1,15 @@
+POST http://localhost:3000/category
+Content-Type: application/json
+
+{
+    "name": "clothes"
+}
+
+######
+
+GET http://localhost:3000/category
+
+###
+
+DELETE http://localhost:3000/category/55555555-5555-5555-5555-555555555555
+
