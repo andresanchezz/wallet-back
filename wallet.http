@@ -1,0 +1,27 @@
+### Crear wallet con balance inicial
+POST http://localhost:3000/wallet
+Content-Type: application/json
+
+{
+  "userId": "db18c1f4-64fc-48d7-a05d-5c18ae00047a",
+  "name": "Banco Ahorros",
+  "type": "WALLET",
+  "balance": 5000,
+  "interestRate": 5.0
+}
+
+### Crear wallet sin balance (queda en 0 por default)
+POST http://localhost:3000/wallet
+Content-Type: application/json
+
+{
+  "userId": "db18c1f4-64fc-48d7-a05d-5c18ae00047a",
+  "name": "Tarjeta Crédito",
+  "type": "CREDIT_CARD"
+}
+
+### Listar wallets por usuario
+GET http://localhost:3000/wallet?userId=db18c1f4-64fc-48d7-a05d-5c18ae00047a
+
+### Eliminar wallet (cambia el id según lo que devuelva el POST)
+DELETE http://localhost:3000/wallet/fdd29555-cdce-489d-93d2-4fc44cf5e3ff
