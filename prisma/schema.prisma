@@ -49,6 +49,7 @@ model Category {
 model Transaction {
   id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   walletId    String?         @map("account_id") @db.Uuid
+  name        String          @db.VarChar(100) 
   categoryId  String?         @db.Uuid
   type        TransactionType
   amount      Decimal         @db.Decimal(15, 2)

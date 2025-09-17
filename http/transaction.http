@@ -1,0 +1,53 @@
+### Crear transacción INCOME (ingreso)
+POST http://localhost:3000/transaction
+Content-Type: application/json
+
+{
+  "walletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "categoryId": "40beecab-9892-4253-87f1-ccc133d68132",
+  "type": "INCOME",
+  "name": "Entró dinero",
+  "amount": 2000,
+  "date": "2025-09-12T15:00:00.000Z"
+}
+
+### Crear transacción EXPENSE (gasto)
+POST http://localhost:3000/transaction
+Content-Type: application/json
+
+{
+  "walletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "categoryId": "40beecab-9892-4253-87f1-ccc133d68132",
+  "type": "EXPENSE",
+  "name": "Salió dinero",
+  "amount": 500,
+  "date": "2025-09-12T16:00:00.000Z"
+}
+
+### Crear transacción TRANSFER (ejemplo, aunque aún no implementes la lógica compleja)
+POST http://localhost:3000/transaction
+Content-Type: application/json
+
+{
+  "walletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "type": "TRANSFER",
+  "amount": 1000,
+  "date": "2025-09-12T18:30:00.000Z"
+}
+
+### Listar transacciones por wallet
+GET http://localhost:3000/transaction?walletId=6fc835fb-dc23-41a1-877e-bb781ac3d08c
+
+### Listar todas las transacciones con paginación (ejemplo)
+GET http://localhost:3000/transaction/all?page=1&limit=10
+
+### Actualizar fecha de una transacción
+PATCH http://localhost:3000/transaction/dbdc4c49-78da-418f-858d-df421156cab6
+Content-Type: application/json
+
+{
+  "date": "2025-09-15T12:00:00.000Z"
+}
+
+### Eliminar transacción
+DELETE http://localhost:3000/transaction/dbdc4c49-78da-418f-858d-df421156cab6

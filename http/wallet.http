@@ -3,7 +3,7 @@ POST http://localhost:3000/wallet
 Content-Type: application/json
 
 {
-  "userId": "db18c1f4-64fc-48d7-a05d-5c18ae00047a",
+  "userId": "8537c041-04d9-4a28-9e6f-5a299b18e61d",
   "name": "Banco Ahorros",
   "type": "WALLET",
   "balance": 5000,
@@ -15,13 +15,13 @@ POST http://localhost:3000/wallet
 Content-Type: application/json
 
 {
-  "userId": "db18c1f4-64fc-48d7-a05d-5c18ae00047a",
+  "userId": "8537c041-04d9-4a28-9e6f-5a299b18e61d",
   "name": "Tarjeta Crédito",
   "type": "CREDIT_CARD"
 }
 
 ### Listar wallets por usuario
-GET http://localhost:3000/wallet?userId=db18c1f4-64fc-48d7-a05d-5c18ae00047a
+GET http://localhost:3000/wallet?userId=8537c041-04d9-4a28-9e6f-5a299b18e61d
 
 ### Eliminar wallet (cambia el id según lo que devuelva el POST)
-DELETE http://localhost:3000/wallet/fdd29555-cdce-489d-93d2-4fc44cf5e3ff
+DELETE http://localhost:3000/wallet/fdde288f-37f8-4bdc-ac8b-9adf76fc636d
