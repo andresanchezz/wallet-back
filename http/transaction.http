@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 
 ### Listar transacciones por wallet (ej: cuenta principal)
-GET http://localhost:3000/transaction?walletId=a258e515-e6df-4d55-a7a8-178d40d37d52
+GET http://localhost:3000/transaction
 
 ### Actualizar transacción (ej: cambiar fecha o nombre)
 PATCH http://localhost:3000/transaction/REEMPLAZAR_POR_TRANSACTION_ID

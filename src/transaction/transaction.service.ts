@@ -179,9 +179,24 @@ export class TransactionService {
                 skip: (page - 1) * limit,
                 take: limit,
                 orderBy: { date: "desc" },
+                include: {
+                    wallet: {
+                        select: {
+                            id: true,
+                            name: true, // 👈 nombre de la wallet
+                        },
+                    },
+                    category: {
+                        select: {
+                            id: true,
+                            name: true, // 👈 nombre de la categoría
+                        },
+                    },
+                },
             }),
             this.prisma.transaction.count({ where }),
         ]);
+
 
         return {
             items,
