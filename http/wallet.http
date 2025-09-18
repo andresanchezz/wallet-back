@@ -24,4 +24,4 @@ Content-Type: application/json
 GET http://localhost:3000/wallet?userId=8537c041-04d9-4a28-9e6f-5a299b18e61d
 
 ### Eliminar wallet (cambia el id según lo que devuelva el POST)
-DELETE http://localhost:3000/wallet/fdde288f-37f8-4bdc-ac8b-9adf76fc636d
+DELETE http://localhost:3000/wallet/a258e515-e6df-4d55-a7a8-178d40d37d52

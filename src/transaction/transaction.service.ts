@@ -1,139 +1,194 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/service.prisma';
-import { CreateTransactionDto, TransactionType } from './dto/create-transaction.dto';
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "src/prisma/service.prisma";
+import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { UpdateTransactionDto } from "./dto/update-transaction.dto";
+import { Prisma, TransactionType, TransactionDirection } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class TransactionService {
     constructor(private readonly prisma: PrismaService) { }
 
     async create(dto: CreateTransactionDto) {
-        return this.prisma.$transaction(async (tx) => {
-            const wallet = await tx.wallet.findUnique({
-                where: { id: dto.walletId },
+        if (dto.type === TransactionType.TRANSFER) {
+            // Transferencia → requiere fromWalletId y toWalletId
+            const transferId = randomUUID();
+
+            return this.prisma.$transaction(async (tx) => {
+                // Crear movimiento de salida
+                const fromTx = await tx.transaction.create({
+                    data: {
+                        walletId: dto.fromWalletId,
+                        type: TransactionType.TRANSFER,
+                        name: dto.name,
+                        direction: TransactionDirection.OUT,
+                        amount: dto.amount,
+                        date: new Date(dto.date),
+                        transferId,
+                    },
+                });
+
+                // Crear movimiento de entrada
+                const toTx = await tx.transaction.create({
+                    data: {
+                        walletId: dto.toWalletId,
+                        type: TransactionType.TRANSFER,
+                        name: dto.name,
+                        direction: TransactionDirection.IN,
+                        amount: dto.amount,
+                        date: new Date(dto.date),
+                        transferId,
+                    },
+                });
+
+                // Actualizar balances
+                await tx.wallet.update({
+                    where: { id: dto.fromWalletId },
+                    data: { balance: { decrement: dto.amount } },
+                });
+
+                await tx.wallet.update({
+                    where: { id: dto.toWalletId },
+                    data: { balance: { increment: dto.amount } },
+                });
+
+                return { from: fromTx, to: toTx };
             });
+        }
 
-            if (!wallet) {
-                throw new NotFoundException('Wallet not found');
-            }
-
+        // INCOME, EXPENSE, INTEREST
+        return this.prisma.$transaction(async (tx) => {
             const transaction = await tx.transaction.create({
                 data: {
                     walletId: dto.walletId,
-                    name: dto.name,
-                    categoryId: dto.categoryId,
+                    categoryId: dto.categoryId ?? undefined,
                     type: dto.type,
+                    name: dto.name,
                     amount: dto.amount,
                     date: new Date(dto.date),
-                    transferId: dto.transferId ?? undefined,
                 },
             });
 
-            let balanceChange = 0;
-
-            switch (dto.type) {
-                case TransactionType.INCOME:
-                    balanceChange = dto.amount;
-                    break;
-                case TransactionType.EXPENSE:
-                    balanceChange = -dto.amount;
-                    break;
-                case TransactionType.TRANSFER:
-                    balanceChange = 0;
-                    break;
-                case TransactionType.INTEREST:
-                    balanceChange = 0;
-                    break;
-            }
-
-            if (balanceChange !== 0) {
+            if (dto.type === TransactionType.INCOME) {
                 await tx.wallet.update({
                     where: { id: dto.walletId },
-                    data: {
-                        balance: { increment: balanceChange },
-                    },
+                    data: { balance: { increment: dto.amount } },
                 });
             }
 
+            if (dto.type === TransactionType.EXPENSE) {
+                await tx.wallet.update({
+                    where: { id: dto.walletId },
+                    data: { balance: { decrement: dto.amount } },
+                });
+            }
+
+            // INTEREST → no tocar acá, lo hará el cron job
             return transaction;
         });
     }
 
-    async findByWallet(walletId: string) {
-        return this.prisma.transaction.findMany({
-            where: { walletId },
-            orderBy: { date: "desc" },
+    async update(id: string, dto: UpdateTransactionDto) {
+        return this.prisma.transaction.update({
+            where: { id },
+            data: {
+                date: dto.date ? new Date(dto.date) : undefined,
+            },
         });
     }
 
-    async findAllPaginated(page = 1, pageSize = 10) {
-        const skip = (page - 1) * pageSize;
+    async delete(transactionId: string) {
+        const transaction = await this.prisma.transaction.findUnique({
+            where: { id: transactionId },
+        });
+
+        if (!transaction) {
+            throw new NotFoundException("Transaction not found");
+        }
+
+        // 🚨 Caso normal
+        if (transaction.type !== "TRANSFER") {
+            return this.prisma.$transaction(async (tx) => {
+                if (transaction.type === "INCOME") {
+                    await tx.wallet.update({
+                        where: { id: transaction.walletId! },
+                        data: { balance: { decrement: transaction.amount } },
+                    });
+                } else if (transaction.type === "EXPENSE") {
+                    await tx.wallet.update({
+                        where: { id: transaction.walletId! },
+                        data: { balance: { increment: transaction.amount } },
+                    });
+                } else if (transaction.type === "INTEREST") {
+                    await tx.wallet.update({
+                        where: { id: transaction.walletId! },
+                        data: { balance: { decrement: transaction.amount } },
+                    });
+                }
+
+                return tx.transaction.delete({ where: { id: transaction.id } });
+            });
+        }
+
+        // 🚨 Caso especial: TRANSFER
+        if (!transaction.transferId) {
+            throw new BadRequestException("Transfer transaction missing transferId");
+        }
+
+        const related = await this.prisma.transaction.findMany({
+            where: { transferId: transaction.transferId },
+        });
+
+        if (related.length !== 2) {
+            throw new BadRequestException("Corrupted transfer records");
+        }
+
+        const [t1, t2] = related;
+
+        return this.prisma.$transaction(async (tx) => {
+            // Revertir balances
+            if (t1.direction === "OUT") {
+                await tx.wallet.update({
+                    where: { id: t1.walletId! },
+                    data: { balance: { increment: t1.amount } },
+                });
+            }
+            if (t2.direction === "IN") {
+                await tx.wallet.update({
+                    where: { id: t2.walletId! },
+                    data: { balance: { decrement: t2.amount } },
+                });
+            }
+
+            // Eliminar ambas transacciones
+            await tx.transaction.deleteMany({
+                where: { transferId: transaction.transferId },
+            });
+
+            return { deleted: related.map((t) => t.id) };
+        });
+    }
+
+
+    async findAll(walletId?: string, page = 1, limit = 10) {
+        const where: Prisma.TransactionWhereInput = walletId ? { walletId } : {};
+
         const [items, total] = await this.prisma.$transaction([
             this.prisma.transaction.findMany({
-                skip,
-                take: pageSize,
+                where,
+                skip: (page - 1) * limit,
+                take: limit,
                 orderBy: { date: "desc" },
             }),
-            this.prisma.transaction.count(),
+            this.prisma.transaction.count({ where }),
         ]);
 
         return {
             items,
             total,
             page,
-            pageSize,
-            totalPages: Math.ceil(total / pageSize),
+            limit,
+            totalPages: Math.ceil(total / limit),
         };
-    }
-
-    async delete(transactionId: string) {
-        return this.prisma.$transaction(async (tx) => {
-            const transaction = await tx.transaction.findUnique({
-                where: { id: transactionId },
-            });
-
-            if (!transaction) {
-                throw new NotFoundException('Transaction not found');
-            }
-
-            // Revertir balance (excepto INTEREST)
-            let balanceChange = 0;
-
-            switch (transaction.type) {
-                case TransactionType.INCOME:
-                    balanceChange = -transaction.amount.toNumber();
-                    break;
-                case TransactionType.EXPENSE:
-                    balanceChange = transaction.amount.toNumber();
-                    break;
-                case TransactionType.TRANSFER:
-                    balanceChange = 0;
-                    break;
-                case TransactionType.INTEREST:
-                    balanceChange = 0;
-                    break;
-            }
-
-            if (transaction.walletId && balanceChange !== 0) {
-                await tx.wallet.update({
-                    where: { id: transaction.walletId },
-                    data: {
-                        balance: { increment: balanceChange },
-                    },
-                });
-            }
-
-            return tx.transaction.delete({
-                where: { id: transactionId },
-            });
-        });
-    }
-
-    async patch(transactionId: string, dto: { date: string }) {
-        return this.prisma.transaction.update({
-            where: { id: transactionId },
-            data: {
-                date: new Date(dto.date),
-            },
-        });
     }
 }

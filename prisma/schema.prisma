@@ -46,19 +46,25 @@ model Category {
   @@map("categories")
 }
 
-model Transaction {
-  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  walletId    String?         @map("account_id") @db.Uuid
-  name        String          @db.VarChar(100) 
-  categoryId  String?         @db.Uuid
-  type        TransactionType
-  amount      Decimal         @db.Decimal(15, 2)
-  date        DateTime        @db.Timestamp(6)
-  transferId  String?         @db.Uuid
-  createdAt   DateTime?       @map("created_at") @default(now()) @db.Timestamp(6)
+enum TransactionDirection {
+  IN
+  OUT
+}
 
-  wallet      Wallet?         @relation(fields: [walletId], references: [id], onDelete: SetNull)
-  category    Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+model Transaction {
+  id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  walletId    String?            @map("account_id") @db.Uuid
+  categoryId  String?            @db.Uuid
+  type        TransactionType
+  name        String             @db.VarChar(100)
+  direction   TransactionDirection? // opcional, útil para TRANSFER (IN/OUT)
+  amount      Decimal            @db.Decimal(15, 2)
+  date        DateTime           @db.Timestamp(6)
+  transferId  String?            @db.Uuid
+  createdAt   DateTime?          @map("created_at") @default(now()) @db.Timestamp(6)
+
+  wallet      Wallet?            @relation(fields: [walletId], references: [id], onDelete: SetNull)
+  category    Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@map("transactions")
   @@index([walletId], map: "idx_transactions_account")

@@ -5,9 +5,11 @@ import { WalletModule } from './wallet/wallet.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { InterestModule } from './interest/interest.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [WalletModule, CategoryModule, TransactionModule, PrismaModule],
+  imports: [WalletModule, CategoryModule, TransactionModule, PrismaModule, ScheduleModule.forRoot(), InterestModule],
   controllers: [AppController],
   providers: [AppService],
 })

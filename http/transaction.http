@@ -6,8 +6,8 @@ Content-Type: application/json
   "walletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
   "categoryId": "40beecab-9892-4253-87f1-ccc133d68132",
   "type": "INCOME",
-  "name": "Entró dinero",
-  "amount": 2000,
+  "name": "Salario septiembre",
+  "amount": 200000,
   "date": "2025-09-12T15:00:00.000Z"
 }
 
@@ -16,38 +16,51 @@ POST http://localhost:3000/transaction
 Content-Type: application/json
 
 {
-  "walletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "walletId": "a258e515-e6df-4d55-a7a8-178d40d37d52",
   "categoryId": "40beecab-9892-4253-87f1-ccc133d68132",
   "type": "EXPENSE",
-  "name": "Salió dinero",
+  "name": "Compra supermercado",
   "amount": 500,
   "date": "2025-09-12T16:00:00.000Z"
 }
 
-### Crear transacción TRANSFER (ejemplo, aunque aún no implementes la lógica compleja)
+### Crear transacción INTEREST (ejemplo)
 POST http://localhost:3000/transaction
 Content-Type: application/json
 
 {
-  "walletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
-  "type": "TRANSFER",
-  "amount": 1000,
-  "date": "2025-09-12T18:30:00.000Z"
+  "walletId": "a258e515-e6df-4d55-a7a8-178d40d37d52",
+  "type": "INTEREST",
+  "name": "Interés cuenta ahorro",
+  "amount": 50,
+  "date": "2025-09-12T20:00:00.000Z"
 }
 
-### Listar transacciones por wallet
-GET http://localhost:3000/transaction?walletId=6fc835fb-dc23-41a1-877e-bb781ac3d08c
-
-### Listar todas las transacciones con paginación (ejemplo)
-GET http://localhost:3000/transaction/all?page=1&limit=10
-
-### Actualizar fecha de una transacción
-PATCH http://localhost:3000/transaction/dbdc4c49-78da-418f-858d-df421156cab6
+### Crear transacción TRANSFER (movimiento entre cuentas)
+POST http://localhost:3000/transaction
 Content-Type: application/json
 
 {
-  "date": "2025-09-15T12:00:00.000Z"
+  "fromWalletId": "a258e515-e6df-4d55-a7a8-178d40d37d52",
+  "toWalletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "type": "TRANSFER",
+  "name": "Movimiento a tarjeta crédito",
+  "amount": 7000,
+  "date": "2025-09-12T18:30:00.000Z",
+  "categoryId": "40beecab-9892-4253-87f1-ccc133d68132"
+}
+
+### Listar transacciones por wallet (ej: cuenta principal)
+GET http://localhost:3000/transaction?walletId=a258e515-e6df-4d55-a7a8-178d40d37d52
+
+### Actualizar transacción (ej: cambiar fecha o nombre)
+PATCH http://localhost:3000/transaction/REEMPLAZAR_POR_TRANSACTION_ID
+Content-Type: application/json
+
+{
+  "date": "2025-09-15T12:00:00.000Z",
+  "name": "Compra supermercado ajustada"
 }
 
 ### Eliminar transacción
-DELETE http://localhost:3000/transaction/dbdc4c49-78da-418f-858d-df421156cab6
+DELETE http://localhost:3000/transaction/839ca3fd-433c-44a4-bad0-f9dcf74fcc94
