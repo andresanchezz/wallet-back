@@ -190,6 +190,7 @@ export class TransactionService {
                         select: {
                             id: true,
                             name: true, // 👈 nombre de la categoría
+                            icon: true
                         },
                     },
                 },

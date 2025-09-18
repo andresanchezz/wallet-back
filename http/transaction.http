@@ -16,11 +16,11 @@ POST http://localhost:3000/transaction
 Content-Type: application/json
 
 {
-  "walletId": "a258e515-e6df-4d55-a7a8-178d40d37d52",
-  "categoryId": "40beecab-9892-4253-87f1-ccc133d68132",
+  "walletId": "0bb0f7ea-1403-4abd-905c-bee142a289a6",
+  "categoryId": "80c7685e-e80e-40db-b2b4-6b5875dc1abf",
   "type": "EXPENSE",
-  "name": "Compra supermercado",
-  "amount": 500,
+  "name": "COMPRÉ COMIDA",
+  "amount": 5500,
   "date": "2025-09-12T16:00:00.000Z"
 }
 
@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 
 ### Listar transacciones por wallet (ej: cuenta principal)
-GET http://localhost:3000/transaction
+GET http://localhost:3000/transaction?walletId=a258e515-e6df-4d55-a7a8-178d40d37d52
 
 ### Actualizar transacción (ej: cambiar fecha o nombre)
 PATCH http://localhost:3000/transaction/REEMPLAZAR_POR_TRANSACTION_ID

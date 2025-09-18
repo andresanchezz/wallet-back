@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "userId": "8537c041-04d9-4a28-9e6f-5a299b18e61d",
-  "name": "Banco Ahorros",
+  "name": "En uala",
   "type": "WALLET",
   "balance": 5000,
   "interestRate": 5.0

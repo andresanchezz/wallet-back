@@ -9,7 +9,8 @@ export class CategoryService {
     async create(dto: CreateCategoryDto) {
         return this.prisma.category.create({
             data: {
-                name: dto.name
+                name: dto.name,
+                icon: dto.icon
             }
         })
     }

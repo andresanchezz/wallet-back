@@ -2,7 +2,8 @@ POST http://localhost:3000/category
 Content-Type: application/json
 
 {
-    "name": "clothes"
+    "name": "Food",
+    "icon": "nutrition-outline"
 }
 
 ######
