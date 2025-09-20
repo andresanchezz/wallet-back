@@ -10,7 +10,6 @@ export class InterestService {
         const wallets = await this.prisma.wallet.findMany({
             where: {
                 type: 'WALLET', // Excluye CREDIT_CARD
-                interestRate: { not: null },
             },
         });
 

@@ -7,9 +7,10 @@ import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { InterestModule } from './interest/interest.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './register/auth.module';
 
 @Module({
-  imports: [WalletModule, CategoryModule, TransactionModule, PrismaModule, ScheduleModule.forRoot(), InterestModule],
+  imports: [AuthModule, WalletModule, CategoryModule, TransactionModule, PrismaModule, ScheduleModule.forRoot(), InterestModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -36,10 +36,12 @@ export class TransactionController {
 
     @Get()
     async findAll(
+        @Query("userId") userId?: string,
         @Query("walletId") walletId?: string,
         @Query("page") page = "1",
         @Query("limit") limit = "10",
     ) {
-        return this.service.findAll(walletId, Number(page), Number(limit));
+        return this.service.findAll(userId, walletId, Number(page), Number(limit));
     }
+
 }

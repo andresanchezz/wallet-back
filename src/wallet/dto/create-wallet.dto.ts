@@ -26,7 +26,7 @@ export class CreateWalletDto {
     @IsOptional()
     @Type(() => Number)
     @IsNumber({ maxDecimalPlaces: 2 })
-    @IsPositive()
+    @Min(0)
     interestRate?: number; // anual, ej: 5.00
 }
 

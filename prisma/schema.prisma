@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String    @db.VarChar(100)
+  name String @db.VarChar(100) @unique
   createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
 
   wallets   Wallet[]
@@ -22,9 +22,9 @@ model Wallet {
   userId          String     @map("user_id") @db.Uuid
   name            String     @db.VarChar(100) // en el front lo llamas "bank"
   type            WalletType
-  interestRate    Decimal?   @map("annual_interest") @db.Decimal(5, 2)
-  balance         Decimal?   @map("current_balance") @default(0) @db.Decimal(15, 2)
-  accruedInterest Decimal?   @map("total_interest_earned") @default(0) @db.Decimal(15, 2)
+  interestRate    Decimal   @map("annual_interest") @default(0) @db.Decimal(5, 2)
+balance         Decimal   @map("current_balance") @default(0) @db.Decimal(15, 2)
+accruedInterest Decimal   @map("total_interest_earned") @default(0) @db.Decimal(15, 2)
 
   transactions    Transaction[]
   user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -40,7 +40,8 @@ enum WalletType {
 model Category {
   id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String        @db.VarChar(50)
-  icon      String?   @default("MdCategory") // un ícono por defecto
+  icon      String?   @default("logo-apple-ar")
+  color      String?  @default("C41A00") 
 
   transactions Transaction[]
 

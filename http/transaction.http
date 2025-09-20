@@ -41,17 +41,17 @@ POST http://localhost:3000/transaction
 Content-Type: application/json
 
 {
-  "fromWalletId": "a258e515-e6df-4d55-a7a8-178d40d37d52",
-  "toWalletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "fromWalletId": "6fc835fb-dc23-41a1-877e-bb781ac3d08c",
+  "toWalletId": "0bb0f7ea-1403-4abd-905c-bee142a289a6",
   "type": "TRANSFER",
-  "name": "Movimiento a tarjeta crédito",
+  "name": "Movimiento entre cuentas",
   "amount": 7000,
   "date": "2025-09-12T18:30:00.000Z",
   "categoryId": "40beecab-9892-4253-87f1-ccc133d68132"
 }
 
 ### Listar transacciones por wallet (ej: cuenta principal)
-GET http://localhost:3000/transaction?walletId=a258e515-e6df-4d55-a7a8-178d40d37d52
+GET http://localhost:3000/transaction?limit=30
 
 ### Actualizar transacción (ej: cambiar fecha o nombre)
 PATCH http://localhost:3000/transaction/REEMPLAZAR_POR_TRANSACTION_ID

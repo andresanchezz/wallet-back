@@ -1,11 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/service.prisma";
 import { CreateWalletDto } from "./dto/create-wallet.dto";
+import { Decimal } from "@prisma/client/runtime/library";
 
 
 @Injectable()
 export class WalletService {
     constructor(private readonly prisma: PrismaService) { }
+
+
 
     async create(dto: CreateWalletDto) {
         return this.prisma.wallet.create({
@@ -13,12 +16,12 @@ export class WalletService {
                 userId: dto.userId,
                 name: dto.name,
                 type: dto.type,
-                balance: dto.balance ?? undefined, // si no lo mandas → default(0)
-                interestRate: dto.interestRate ?? undefined, // opcional
-                // accruedInterest → siempre default(0), no se pasa aquí
+                balance: new Decimal(dto.balance ?? 0),
+                interestRate: new Decimal(dto.interestRate ?? 0),
             },
         });
     }
+
 
     async delete(walletId: string) {
         return this.prisma.wallet.delete({

@@ -170,8 +170,17 @@ export class TransactionService {
     }
 
 
-    async findAll(walletId?: string, page = 1, limit = 10) {
-        const where: Prisma.TransactionWhereInput = walletId ? { walletId } : {};
+    async findAll(userId?: string, walletId?: string, page = 1, limit = 10) {
+        const where: Prisma.TransactionWhereInput = {};
+
+        if (walletId) {
+            where.walletId = walletId;
+        } else if (userId) {
+            // Filtrar por todas las wallets de un usuario
+            where.wallet = {
+                userId: userId,
+            };
+        }
 
         const [items, total] = await this.prisma.$transaction([
             this.prisma.transaction.findMany({
@@ -183,21 +192,20 @@ export class TransactionService {
                     wallet: {
                         select: {
                             id: true,
-                            name: true, // 👈 nombre de la wallet
+                            name: true,
                         },
                     },
                     category: {
                         select: {
                             id: true,
-                            name: true, // 👈 nombre de la categoría
-                            icon: true
+                            name: true,
+                            icon: true,
                         },
                     },
                 },
             }),
             this.prisma.transaction.count({ where }),
         ]);
-
 
         return {
             items,
@@ -207,4 +215,5 @@ export class TransactionService {
             totalPages: Math.ceil(total / limit),
         };
     }
+
 }
